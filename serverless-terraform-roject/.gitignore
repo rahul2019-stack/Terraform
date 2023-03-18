@@ -1,0 +1,7 @@
+# ignore modules and providers in .terraform folder
+infra/.terraform
+
+terraform.tfstate
+
+*.log
+*.hcl
