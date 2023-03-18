@@ -4,4 +4,3 @@ infra/.terraform
 terraform.tfstate
 
 *.log
-*.hcl
