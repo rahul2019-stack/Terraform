@@ -1,0 +1,64 @@
+pipeline {
+    agent any
+    stages {
+        stage ('Install Dependencies') {
+            steps {
+                echo 'Install'
+            }
+        
+        }
+        stage ('CheckOut') {
+            steps {
+                echo 'C/O stage'
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/rahul2019-stack/Terraform.git']]])
+            }
+        }
+        stage ('Linting') {
+            steps {
+                echo 'Lint'
+            }
+        
+        }
+        stage ('Unit testing') {
+            steps {
+                echo 'UT'
+            }
+        
+        }
+        stage ('SonarQube') {
+            steps {
+                echo 'Sonar'
+            }
+        
+        }
+        stage ('TF init') {
+            steps{
+                echo 'terraform init'
+                bat """
+                    cd serverless-terraform-roject/infra
+                    Terraform init
+                    Terraform plan
+                """
+            }
+        }
+        stage ("Take approval for apply") {
+            steps{
+                script{
+                    env.approval = input message: 'Do u want to do TF apply YES/NO',parameters: [string(defaultValue: 'NO',description: 'input',name: 'I/p')]
+                    
+                }
+                
+            }
+        }
+        stage ("TF apply/deploy") {
+            steps{
+                bat """
+                    cd serverless-terraform-roject/infra
+                    
+                """
+                
+            }
+        }
+        
+    }
+}
