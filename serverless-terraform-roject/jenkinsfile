@@ -1,5 +1,8 @@
+def awsCredentials = [[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'awskeys', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]
+
 pipeline {
     agent any
+    
     stages {
         stage ('Install Dependencies') {
             steps {
@@ -34,15 +37,19 @@ pipeline {
         stage ('TF init') {
             steps{
                 echo 'terraform init'
-                bat """
-                    cd serverless-terraform-roject/infra
-                    Terraform init
-                    Terraform plan
-                """
+                withCredentials(awsCredentials) {
+                    bat """
+                        cd serverless-terraform-roject/infra
+                        Terraform init
+                        Terraform plan
+                    """
+                      
+                }
             }
         }
         stage ("Take approval for apply") {
             steps{
+                echo 'In'
                 script{
                     env.approval = input message: 'Do u want to do TF apply YES/NO',parameters: [string(defaultValue: 'NO',description: 'input',name: 'I/p')]
                     
@@ -50,7 +57,7 @@ pipeline {
                 
             }
         }
-        stage ("TF apply/deploy") {
+        stage ("TF apply") {
             steps{
                 bat """
                     cd serverless-terraform-roject/infra
